@@ -25,6 +25,14 @@ export class UserWarrior extends Character {
         return this.#attackingStat    
     }
 }
+
+export class Enemy extends Character {
+    constructor(name: string) {
+        super(name)
+    }
+    //ememy things
+}
+
 export abstract class Interaction<U extends LivingBeing, T extends LivingBeing>{
     //instead of any, it will be the completeCharacter type
     user: U
@@ -55,15 +63,12 @@ export class BefriendAction extends Interaction<LivingBeing, LivingBeing>{
     action() {
         const randomNumber = Math.floor(Math.random() * 5) + 1;
         if(randomNumber !== 5) return;
-        return new Befriendable(this.user)
+        return Befriendable(this.user)
     }
 
 } 
 
-export class Befriendable {
-    isFriendly = true
-    user: LivingBeing
-    constructor(user: LivingBeing){
-        this.user = user
-    }
+export function Befriendable<U extends LivingBeing>(obj: U) {
+    obj.isFriendly = true
+    return obj
 }
