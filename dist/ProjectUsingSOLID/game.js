@@ -47,30 +47,46 @@ descriptionChoices.set('name', 'string');
 descriptionChoices.set('menu', [1, 2, 3]);
 function question(query) {
     return new Promise((resolve) => {
-        // Provide explicit callback type for readline.question
         rl.question(query, (answer) => resolve(answer));
     });
 }
 async function authQuestion(query, possibleChoices) {
     let response;
-    do {
+    const isArray = Array.isArray(possibleChoices);
+    while (true) {
         response = await question(query);
-    } while (typeof response !== possibleChoices && !Array.isArray(possibleChoices?.includes(response)));
+        if (!isArray) {
+            console.log('vc digitou um valor não array');
+            response = possibleChoices === 'number' ? parseInt(response) : response;
+            console.log(`Considerando o seu tipo, a conversão é ${typeof response}`);
+            if ((possibleChoices === 'number' && !isNaN(response)) || (possibleChoices === 'string' && isNaN(parseInt(response)))) {
+                break;
+            }
+        }
+        else {
+            if (possibleChoices.includes(response)) {
+                break;
+            }
+        }
+        console.log("Invalid Input, please try again.");
+    }
     return response;
 }
-async function insertProperties(...properties) {
-    if (properties.length === 0)
-        return null;
-    const response = await authQuestion(`What is the value of ${properties[0][0]}?\n=> `, descriptionChoices?.get(properties[0][0]));
+async function insertProperties(properties) {
+    if (properties.length === 1)
+        return await authQuestion(`What is the value of ${properties[0]}?\n=> `, descriptionChoices?.get(properties[0]));
+    const response = await authQuestion(`What is the value of ${properties[0]}?\n=> `, descriptionChoices?.get(properties[0]));
     properties.shift();
-    return [response, await insertProperties(properties)];
+    return [response].concat(await insertProperties(properties));
 }
 async function createCharacter(ClassRef, ...properties) {
     if (!ClassRef)
         return null;
     const propertiesForCharacter = await insertProperties(properties);
-    const filtered = propertiesForCharacter.filter((v) => v !== '');
-    const newCharacter = new ClassRef(...filtered);
+    console.log('Properties for character:');
+    console.log(propertiesForCharacter);
+    // const filtered = propertiesForCharacter.filter((v: any) => v !== '')
+    const newCharacter = new ClassRef(...propertiesForCharacter);
     return newCharacter;
 }
 let warrior;
