@@ -40,11 +40,24 @@ const rl = readline.createInterface({
     output: process.stdout
 });
 const gameConfig = new Map();
-gameConfig.set('EnemyHp', 5);
+gameConfig.set('difficulty', {
+    easy: () => {
+        gameConfig.set('EnemyHp', 3);
+    },
+    medium: () => {
+        gameConfig.set('EnemyHp', 5);
+    },
+    hard: () => {
+        gameConfig.set('EnemyHp', 7);
+    }
+});
+gameConfig.get('difficulty').medium();
 const descriptionChoices = new Map();
 descriptionChoices.set('hp', 'number');
 descriptionChoices.set('name', 'string');
-descriptionChoices.set('menu', [1, 2, 3]);
+descriptionChoices.set('menu', ['1', '2', '3']);
+descriptionChoices.set('fightOptions', ['1', '2', '3', '4']);
+descriptionChoices.set('play', ['yes', 'no']);
 function question(query) {
     return new Promise((resolve) => {
         rl.question(query, (answer) => resolve(answer));
@@ -56,9 +69,7 @@ async function authQuestion(query, possibleChoices) {
     while (true) {
         response = await question(query);
         if (!isArray) {
-            console.log('vc digitou um valor não array');
             response = possibleChoices === 'number' ? parseInt(response) : response;
-            console.log(`Considerando o seu tipo, a conversão é ${typeof response}`);
             if ((possibleChoices === 'number' && !isNaN(response)) || (possibleChoices === 'string' && isNaN(parseInt(response)))) {
                 break;
             }
@@ -83,12 +94,31 @@ async function createCharacter(ClassRef, ...properties) {
     if (!ClassRef)
         return null;
     const propertiesForCharacter = await insertProperties(properties);
-    console.log('Properties for character:');
-    console.log(propertiesForCharacter);
-    // const filtered = propertiesForCharacter.filter((v: any) => v !== '')
     const newCharacter = new ClassRef(...propertiesForCharacter);
     return newCharacter;
 }
-let warrior;
-createCharacter(classes_1.UserWarrior, 'name', 'hp').then((userWarrior) => { warrior = userWarrior; console.log(warrior); });
+async function startGame() {
+    const playGame = await authQuestion("Do you want to play the game? (yes/no)\n=> ", descriptionChoices.get('play'));
+    if (playGame === 'no') {
+        console.log("Maybe next time!");
+        rl.close();
+        process.exit(0);
+        return;
+    }
+    let warrior = await createCharacter(classes_1.UserWarrior, 'name');
+    console.log(`Welcome, ${warrior.name}! Your adventure begins now.`);
+}
+async function tutorial() {
+    console.log('Well, first things first, let me show you how to fight.');
+    await new Promise(resolve => setTimeout(resolve, 500));
+    const enemy = new classes_1.Enemy('Goblin', gameConfig.get('EnemyHp'));
+    console.log(`A wild ${enemy.name} appears with ${enemy.hp} HP!`);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    console.log('When you encounter an enemy, you will have several options to choose from.');
+}
+async function main() {
+    await startGame();
+    await tutorial();
+}
+main();
 //# sourceMappingURL=game.js.map

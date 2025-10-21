@@ -1,12 +1,19 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BefriendAction = exports.AttackAction = exports.Interaction = exports.Enemy = exports.UserWarrior = exports.Character = void 0;
+exports.BefriendAction = exports.AttackAction = exports.Interaction = exports.Enemy = exports.UserWarrior = exports.Character = exports.namedLivingBeing = void 0;
 exports.Befriendable = Befriendable;
-class Character {
+class namedLivingBeing {
     name;
-    #hp = 10;
     constructor(name) {
         this.name = name;
+    }
+}
+exports.namedLivingBeing = namedLivingBeing;
+class Character extends namedLivingBeing {
+    #hp = 10;
+    constructor(name, hp) {
+        super(name);
+        this.#hp = hp ?? this.#hp;
     }
     get hp() {
         return this.#hp;
@@ -30,8 +37,8 @@ class UserWarrior extends Character {
 }
 exports.UserWarrior = UserWarrior;
 class Enemy extends Character {
-    constructor(name) {
-        super(name);
+    constructor(name, hp) {
+        super(name, hp);
     }
 }
 exports.Enemy = Enemy;

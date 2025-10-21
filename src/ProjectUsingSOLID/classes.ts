@@ -1,10 +1,16 @@
 import type { LivingBeing } from "./types"
 
-export abstract class Character implements LivingBeing {
+export abstract class namedLivingBeing {
     name: string
-    #hp: number = 10
     constructor(name: string) {
         this.name = name  
+    }
+}
+export abstract class Character extends namedLivingBeing implements LivingBeing  {
+    #hp: number = 10
+    constructor(name: string, hp?: number) {
+        super(name)
+        this.#hp = hp ?? this.#hp
     }
     get hp(){
         return this.#hp
@@ -27,10 +33,9 @@ export class UserWarrior extends Character {
 }
 
 export class Enemy extends Character {
-    constructor(name: string) {
-        super(name)
+    constructor(name: string, hp: number) {
+        super(name, hp)
     }
-    //ememy things
 }
 
 export abstract class Interaction<U extends LivingBeing, T extends LivingBeing>{
@@ -49,16 +54,14 @@ export class AttackAction<U extends (LivingBeing & {attackingStat: number}), T e
         super(user, target)        
     }
     action() {
-        if(this.user.isFriendly) return;
+        if(this.user.isFriendly) return `I cannot attack my friend ${this.target.name}\nbecause I am friendly.`;
         return this.target.receiveDamage(this.user.attackingStat)
     }
 }
 
 export class BefriendAction extends Interaction<LivingBeing, LivingBeing>{
-    befriend: any
-    constructor(user: LivingBeing, target: LivingBeing, befriend: any){
+    constructor(user: LivingBeing, target: LivingBeing){
         super(user, target)        
-        this.befriend = befriend
     }
     action() {
         const randomNumber = Math.floor(Math.random() * 5) + 1;

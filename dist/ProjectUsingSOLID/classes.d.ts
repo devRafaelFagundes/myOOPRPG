@@ -1,8 +1,11 @@
 import type { LivingBeing } from "./types";
-export declare abstract class Character implements LivingBeing {
-    #private;
+export declare abstract class namedLivingBeing {
     name: string;
     constructor(name: string);
+}
+export declare abstract class Character extends namedLivingBeing implements LivingBeing {
+    #private;
+    constructor(name: string, hp?: number);
     get hp(): number;
     receiveDamage(damage: number): number;
 }
@@ -12,7 +15,7 @@ export declare class UserWarrior extends Character {
     get attackingStat(): number;
 }
 export declare class Enemy extends Character {
-    constructor(name: string);
+    constructor(name: string, hp: number);
 }
 export declare abstract class Interaction<U extends LivingBeing, T extends LivingBeing> {
     user: U;
